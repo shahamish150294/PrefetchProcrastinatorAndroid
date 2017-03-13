@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Prefetch-FAAN</string>
+    <!--Strings in Prefetch Main Activity String-->
+    <string name="PrefetchMainActivity_bt_NextActivity">Open New Activity!</string>
+
+
+    <!--Strings in Prefetch Content Activity String-->
+    <string name="PrefetchContentActivity_tv_ViewLogMessage">View logs to check whether the content received from cache.</string>
+    <string name="PrefetchContentActivity_bt_DeleteMessage">Delete Cache</string>
+
+</resources>
