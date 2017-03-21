@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.tau.volleyprocrastrinate.DisplayDataActivity">
+
+    <LinearLayout
+        android:layout_width="358dp"
+        android:layout_height="495dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="8dp"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/txtResult"
+            android:layout_width="match_parent"
+            android:layout_height="73dp"
+            android:text="TextView"
+            tools:layout_editor_absoluteX="18dp"
+            tools:layout_editor_absoluteY="58dp"
+            android:layout_weight="0.23" />
+
+        <TextView
+            android:id="@+id/txtResult2"
+            android:layout_width="match_parent"
+            android:layout_height="73dp"
+            android:text="TextView"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="170dp"
+            android:layout_weight="0.34" />
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="clearData"
+            android:text="Clear Data"
+            tools:layout_editor_absoluteX="92dp"
+            tools:layout_editor_absoluteY="282dp" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
