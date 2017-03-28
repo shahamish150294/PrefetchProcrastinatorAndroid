@@ -16,6 +16,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.mcomputing.procrastinate.PrefetchCorrelationMap;
+import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -45,48 +47,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "hello", Toast.LENGTH_SHORT);
     }
 
-    private void delegate()
-    {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://www.google.com";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        final TextView txtPad = (TextView) findViewById(R.id.txtResult);
-                        result = "Response is: "+ response.substring(0,500);
-                        Log.d(this.getClass().getSimpleName(),"got response!");
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        queue.add(stringRequest);
-
-    }
-
-
-    private void delegate2(String requestUrl)
-    {
-        try {
-            URL url = new URL(requestUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            //HttpURLConnection conn = null;
-            //HttpURLConnection conn = null;
-            conn.setRequestMethod("GET");
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-            result2 = convertStreamToString(in);
-            Log.d(this.getClass().getSimpleName(),result+"****");
-        }catch (Exception e){
-
-        }
-
-    }
     private void delegate3(String requestUrl){
         try {
             URL url = new URL(requestUrl);
@@ -101,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     private String convertStreamToString(InputStream is) {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -125,23 +86,29 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendMessage(View view) {
-/*
+
+        delegate3("google.com");
+
+        String activityName = DisplayDataActivity.class.getSimpleName();
+        PrefetchCorrelationMap.getInstance().incrementPrefetchCount(activityName);
+
+        /*
         delegate();
         delegate2();*/
-        AsyncCalls a = new AsyncCalls();
-        a.execute(new String[]{"asdasd"});
-/*
+        //AsyncCalls a = new AsyncCalls();
+        //a.execute(new String[]{"asdasd"});
+
         Intent intent = new Intent(this, DisplayDataActivity.class);
         intent.putExtra(EXTRA_MESSAGE, result);
         intent.putExtra(EXTRA_MESSAGE2, result2);
-        startActivity(intent);*/
+        startActivity(intent);
     }
 
     class AsyncCalls extends AsyncTask<String, Void, Boolean>{
 
         @Override
         protected Boolean doInBackground(String... urls) {
-            delegate2("http://www.bing.com");
+            //delegate2("http://www.bing.com");
             delegate3("http://www.google.com");
             return true;
         }
