@@ -3,67 +3,108 @@ package Prefetch;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 /**
- * Try to get onPostExecute method
+ * Track intent calls
  */
 public class TraceIntentCalls {
 	static String prefetchInitiator;
 	static String prefetchReceiver;
 	static List<String> networkresources = new ArrayList<String>();
 	static String filename;
+	static String srcDir;
+
+	/**
+	 * If PutExtra variable is found in a function, then find an assignment to
+	 * that variable which is a network call. Assumption is that PutExtra
+	 * variable is a response and needs to be read using InputStream using a
+	 * custom function. Hence, all the arguments of function calls that return
+	 * values to these PutExtra variables are stored in candidateParameterList
+	 * The variables will then be checked, if they are objects of InputStreams
+	 */
+	static List<String> candidateParametersList;
+	/**
+	 * We need to do above process for each putExtra variables and there can be
+	 * many such putExtra variable
+	 * 
+	 */
+	static Map<Integer, List<String>> candidateParametersMap = new HashMap<Integer, List<String>>();
+	static int intentResultIterator = -1;
+
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		filename = "MainActivity";
-		FileInputStream in = new FileInputStream(
-				"C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/"+filename+".java");
+		srcDir = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/";
+		FileInputStream in = new FileInputStream(srcDir + filename + ".java");
 		// parse it
 		CompilationUnit cu = JavaParser.parse(in);
-		new MethodChangerVisitor().visit(cu, null);
-		// System.out.println(cu);
-		System.out.println(prefetchInitiator+","+prefetchReceiver+","+networkresources);
+		new IntentTracker().visit(cu, null);
+		int countIntentresults = 0;
+		//
+		for (String transferVariables : networkresources) {
+			candidateParametersList = new ArrayList<String>();
+			new TraceIntentTransferData().visit(cu, transferVariables);
+			candidateParametersMap.put(countIntentresults, candidateParametersList);
+			countIntentresults++;
+		}
+
+		// Iterate over map to find whether any parameter/variable is calls
+		// InputStream constructor, copy its key
+		for (int key : candidateParametersMap.keySet()) {
+			List<String> testParameterList = candidateParametersMap.get(key);
+			for (String eachParameter : testParameterList) {
+				InputStreamMatcher a = new InputStreamMatcher();
+				KeyParameterPair currentPair = new KeyParameterPair(key, eachParameter, false);
+				a.visit(cu, currentPair);
+				if (currentPair.found)
+					System.out.println(networkresources.get(key));
+
+			}
+		}
+
 	}
 
-	private static class MethodChangerVisitor extends VoidVisitorAdapter<Void> {
+	private static class IntentTracker extends VoidVisitorAdapter<Void> {
 		@Override
 		public void visit(MethodDeclaration n, Void arg) {
 			// Check whether a method contains instantiation of Intent
 			if (n.toString().contains("new Intent")) {
-				/*
-				 * n.addParameter("int", "value"); NodeList a =
-				 * n.getParameters(); a.getParentNode();
-				 */
-
 				Node methodBlock = (n.getChildNodes().get(n.getChildNodes().size() - 1));
-				 
-					methodBlock = (n.getChildNodes().get(n.getChildNodes().size() - 1));
-					int count = 0;
-					while (count < methodBlock.getChildNodes().size()) {
-						Node statement = methodBlock.getChildNodes().get(count);
-						fetchValues(statement);
-						count++;
-					}
+				int count = 0;
+				while (count < methodBlock.getChildNodes().size()) {
+					Node statement = methodBlock.getChildNodes().get(count);
+					fetchValues(statement);
+					count++;
+				}
 
-				
 			}
 		}
-		public void fetchValues(Node statement){
+
+		public void fetchValues(Node statement) {
 			/*
-			 * Conveys that intent constructor was found Hence, we
-			 * find the classes need for procrastinator
+			 * Conveys that intent constructor was found Hence, we find the
+			 * classes need for procrastinator
 			 */
 			if (statement.toString().contains("new Intent")) {
 				Pattern p = Pattern.compile("\\((.*?)\\)");
@@ -71,27 +112,92 @@ public class TraceIntentCalls {
 				if (m.find()) {
 					String[] classes = new String[2];
 					classes = m.group(1).split(",");
-					// Context of current class can be passed as "this" or getApplicationContext
-					if ((classes[0].contains("this") && !classes[0].contains(".this"))  || classes[0].contains("getApplicationContext")){
+					// Context of current class can be passed as "this" or
+					// getApplicationContext
+					if ((classes[0].contains("this") && !classes[0].contains(".this"))
+							|| classes[0].contains("getApplicationContext")) {
 						prefetchInitiator = filename;
-					}
-					else{
+					} else {
 						prefetchInitiator = classes[0].replaceAll("\\s", "").substring(0, classes[0].indexOf("."));
 					}
 					prefetchReceiver = classes[1].substring(0, classes[1].indexOf("."));
 				}
 			}
-			
+
 			// Find all the variables passed in intent
 			if (statement.toString().contains("putExtra")) {
 				Pattern p = Pattern.compile("\\((.*?)\\)");
 				Matcher m = p.matcher(statement.toString());
 				if (m.find()) {
-					networkresources.add(m.group(1).split(",")[1].replaceAll("\\s", ""));// Store the second result
+					networkresources.add(m.group(1).split(",")[1].replaceAll("\\s", ""));// Store
+																							// the
+																							// second
+																							// variable
+																							// passed
+
 				}
-			
+
 			}
-			
+
 		}
 	}
+
+	/**
+	 * Track the contents of Intent to check whether they are a response from a
+	 * network fetch
+	 */
+	private static class TraceIntentTransferData extends VoidVisitorAdapter<String> {
+		@Override
+		public void visit(MethodDeclaration declarator, String content) {
+
+			if (declarator.getDeclarationAsString().contains("delegate3")) {
+				boolean results[] = new boolean[2];
+				processMethod(declarator, results, content);
+
+			}
+		}
+
+		public void processMethod(Node n, boolean[] results, String var) {
+			List<Node> childrenNodes = n.getChildNodes();
+			if (n.toString().equals(var) && !results[0]) {
+				// Variable matched
+				results[0] = true;
+			}
+			if (results[0] && n instanceof MethodCallExpr) {
+				// Check if the nodes is an instance of inputStream
+				// First we get the parameter
+				int childNodesCount = n.getChildNodes().size();
+				int count = 0;
+				while (count < childNodesCount) {
+
+					if (n.getChildNodes().get(count) instanceof NameExpr) {
+						candidateParametersList.add(n.getChildNodes().get(count).toString());
+						results[0] = false;
+					}
+					count++;
+				}
+			}
+
+			for (Node child : childrenNodes) {
+				processMethod(child, results, var);
+			}
+
+		}
+	}
+
+	private static class InputStreamMatcher extends ModifierVisitor<KeyParameterPair> {
+		@Override
+		public Node visit(VariableDeclarator declarator, KeyParameterPair pair) {
+			if (declarator.getName().toString().contains(pair.parameter) && declarator.getInitializer().isPresent()) {
+				Expression expression = declarator.getInitializer().get();
+				if (expression.toString().contains("new BufferedInputStream("))
+				{
+					pair.found = true;
+				}
+			}
+
+			return declarator;
+		}
+	}
+
 }
