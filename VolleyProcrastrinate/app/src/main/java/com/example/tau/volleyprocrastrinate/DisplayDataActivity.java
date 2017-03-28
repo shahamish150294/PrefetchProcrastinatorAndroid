@@ -13,12 +13,11 @@ public class DisplayDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_data);
 
-        // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         String message2 = intent.getStringExtra(MainActivity.EXTRA_MESSAGE2);
 
-        // Capture the layout's TextView and set the string as its text
+
         TextView textView = (TextView) findViewById(R.id.txtResult);
         textView.setText(message);
 

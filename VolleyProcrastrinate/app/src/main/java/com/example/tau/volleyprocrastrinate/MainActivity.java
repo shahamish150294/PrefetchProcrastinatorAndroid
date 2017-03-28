@@ -6,18 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+
 import com.mcomputing.procrastinate.PrefetchCorrelationMap;
-import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
+
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -26,8 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -51,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             URL url = new URL(requestUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            //HttpURLConnection conn = null;
+
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
             result = convertStreamToString(in);
@@ -92,12 +84,6 @@ public class MainActivity extends AppCompatActivity {
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance().incrementPrefetchCount(activityName);
 
-        /*
-        delegate();
-        delegate2();*/
-        //AsyncCalls a = new AsyncCalls();
-        //a.execute(new String[]{"asdasd"});
-
         Intent intent = new Intent(this, DisplayDataActivity.class);
         intent.putExtra(EXTRA_MESSAGE, result);
         intent.putExtra(EXTRA_MESSAGE2, result2);
@@ -108,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(String... urls) {
-            //delegate2("http://www.bing.com");
+
             delegate3("http://www.google.com");
             return true;
         }
@@ -117,12 +103,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean aBoolean) {
 
             if (aBoolean) {
-                Log.d(this.getClass().getSimpleName(),"Delegates done!");
-                Intent intent = new Intent(MainActivity.this, DisplayDataActivity.class);
-                intent.putExtra(EXTRA_MESSAGE, result);
-                intent.putExtra(EXTRA_MESSAGE2, result2);
-                Log.d(this.getClass().getSimpleName(),"Starting activity!"+result+"**********"+result2);
-                startActivity(intent);
+
             }
         }
     }
