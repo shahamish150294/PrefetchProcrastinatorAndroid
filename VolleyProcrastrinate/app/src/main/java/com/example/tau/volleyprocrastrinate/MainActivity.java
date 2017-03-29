@@ -39,9 +39,10 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "hello", Toast.LENGTH_SHORT);
     }
 
-    private void delegate3(String requestUrl){
+    private void delegate3(){
         try {
-            URL url = new URL(requestUrl);
+            
+            URL url = new URL("http://www.google.com");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... urls) {
 
-            delegate3("http://www.google.com");
+            delegate3();
             return true;
         }
 
