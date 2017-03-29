@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void delegate3(){
         try {
-            
+
             URL url = new URL("http://www.google.com");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -80,11 +80,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
 
-        delegate3("google.com");
-
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance().incrementPrefetchCount(activityName);
-
+        AsyncCalls a = new AsyncCalls();
+        a.execute();
         Intent intent = new Intent(this, DisplayDataActivity.class);
         intent.putExtra(EXTRA_MESSAGE, result);
         intent.putExtra(EXTRA_MESSAGE2, result2);
