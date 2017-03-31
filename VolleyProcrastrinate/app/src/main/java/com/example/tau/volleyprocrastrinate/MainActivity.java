@@ -68,9 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
-            String tempResult = convertStreamToString(in);
-            JSONObject jObject = new JSONObject(tempResult);
-            prefetchResult = jObject.getString("data");
+            prefetchResult = convertStreamToString(in);
+
 
             Log.d(this.getClass().getSimpleName(),prefetchResult+"****");
         }catch (Exception e){
