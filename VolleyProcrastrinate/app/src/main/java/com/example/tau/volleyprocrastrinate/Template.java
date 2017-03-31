@@ -22,6 +22,7 @@ class Template extends AsyncTask<Void, Void, Boolean> {
         this.context = context;
     }
     public static final String EXTRA_MESSAGE = "volley.MESSAGE";
+
     @Override
     protected Boolean doInBackground(Void... args) {
         try {
@@ -67,9 +68,9 @@ class Template extends AsyncTask<Void, Void, Boolean> {
             Log.d(this.getClass().getSimpleName(),"Delegates done!");
             Intent intent = new Intent(context, DisplayDataActivity.class);
             intent.putExtra(EXTRA_MESSAGE, result);
-            intent.putExtra(EXTRA_MESSAGE2, result2);
+
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d(this.getClass().getSimpleName(),"Starting activity!"+result+"**********"+result2);
+            Log.d(this.getClass().getSimpleName(),"Starting activity!"+result);
             context.startActivity(intent);
         }
     }

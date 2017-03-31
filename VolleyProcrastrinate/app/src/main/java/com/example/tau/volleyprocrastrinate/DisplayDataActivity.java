@@ -15,19 +15,11 @@ public class DisplayDataActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
-        String message2 = intent.getStringExtra(MainActivity.EXTRA_MESSAGE2);
 
-
-        TextView textView = (TextView) findViewById(R.id.txtResult);
+        TextView textView = (TextView) findViewById(R.id.lblRiskIndex);
         textView.setText(message);
 
-        TextView textView2 = (TextView) findViewById(R.id.txtResult2);
-        textView2.setText(message2);
-    }
-
-    public void clearData(View view)
-    {
-        TextView textView = (TextView) findViewById(R.id.txtResult);
-        textView.setText("");
+        TextView textView2 = (TextView) findViewById(R.id.lblRiskLevel);
+        textView2.setText("Low");
     }
 }
