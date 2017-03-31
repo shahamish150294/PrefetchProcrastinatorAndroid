@@ -27,9 +27,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "volley.MESSAGE";
     public static String result;
     public static String prefetchResult;
-    public String prefetchURL = "http://api.openweathermap.org/v3/uvi/39,-86/current.json?appid=9ebbefc881d4c7bf3ecc57074775e3d2";
-    public String weatherURL = "http://api.openweathermap.org/data/2.5/weather?zip=47408,US&appid=9ebbefc881d4c7bf3ecc57074775e3d2";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            URL url = new URL(weatherURL);
+            URL url = new URL("http://api.openweathermap.org/data/2.5/weather?zip=47408,US&appid=9ebbefc881d4c7bf3ecc57074775e3d2");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             Log.d(this.getClass().getSimpleName(),result+"****");
             conn.setRequestMethod("GET");
@@ -63,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private void getPrefetchData(){
         try {
 
-            URL url = new URL(prefetchURL);
+            URL url = new URL("http://api.openweathermap.org/v3/uvi/39,-86/current.json?appid=9ebbefc881d4c7bf3ecc57074775e3d2");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
