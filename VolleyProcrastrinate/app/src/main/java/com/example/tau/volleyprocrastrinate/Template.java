@@ -33,8 +33,8 @@ class Template extends AsyncTask<Void, Void, Boolean> {
             //HttpURLConnection conn = null;
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
-            MainActivity.result = convertStreamToString(in);
-            Log.d(this.getClass().getSimpleName(),result+"****");
+            //MainActivity.result = convertStreamToString(in);
+            //Log.d(this.getClass().getSimpleName(),result+"****");
         }catch (Exception e) {
         }
             return true;
@@ -67,10 +67,17 @@ class Template extends AsyncTask<Void, Void, Boolean> {
         if (aBoolean) {
             Log.d(this.getClass().getSimpleName(),"Delegates done!");
             Intent intent = new Intent(context, DisplayDataActivity.class);
+<<<<<<< HEAD
             intent.putExtra(EXTRA_MESSAGE, result);
 
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.d(this.getClass().getSimpleName(),"Starting activity!"+result);
+=======
+            //intent.putExtra(EXTRA_MESSAGE, result);
+            //intent.putExtra(EXTRA_MESSAGE2, result2);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //Log.d(this.getClass().getSimpleName(),"Starting activity!"+result+"**********"+result2);
+>>>>>>> e324fb4ae9b1773a5147aa9ec4500be70aa5c0e6
             context.startActivity(intent);
         }
     }

@@ -25,7 +25,7 @@ public class DetectConnections {
 
         // visit and print the methods names
         new MyVisitor().visit(cu, null);
-        
+        //System.out.println(cu);
         //Read template
 		FileInputStream in2 = new FileInputStream("C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/Template.java");
         // parse it
@@ -41,8 +41,7 @@ class MyVisitor extends ModifierVisitor<Void> {
     @Override
     
     public Node visit(VariableDeclarator declarator, Void args) {
-    	//To make conn null
-    	if (declarator.getNameAsString().equals("conn")){
+    	
                 // the initializer is optional, first check if there is one
                 if( declarator.getInitializer().isPresent()) {
             Expression expression = declarator.getInitializer().get();
@@ -52,8 +51,8 @@ class MyVisitor extends ModifierVisitor<Void> {
             	return null;
             }
                 }
-        }
-    	if (declarator.getNameAsString().equals("a")){
+        
+    	
         	if( declarator.getInitializer().isPresent()) {
         		Expression expression = declarator.getInitializer().get();
         		if (expression.toString().contains("AsyncCalls()")) {
@@ -61,8 +60,8 @@ class MyVisitor extends ModifierVisitor<Void> {
         			return null;
         		}
         		}
-        	}
-    	if (declarator.getNameAsString().equals("url")){
+        	
+
         	if( declarator.getInitializer().isPresent()) {
         		Expression expression = declarator.getInitializer().get();
         		if (expression.toString().contains("new URL")) {
@@ -75,7 +74,7 @@ class MyVisitor extends ModifierVisitor<Void> {
         			return null;
         		}
         		}
-        	}
+        	
         
         
         return declarator;

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private void getWeatherData(){
 
         try {
-            Log.d(this.getClass().getSimpleName(),result+"****");
+
             URL url = new URL(weatherURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             Log.d(this.getClass().getSimpleName(),result+"****");
