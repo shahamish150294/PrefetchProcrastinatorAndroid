@@ -2,6 +2,7 @@ package Prefetch;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +35,8 @@ public class TraceIntentCalls {
 	static List<String> networkresources = new ArrayList<String>();
 	static String filename;
 	static String srcDir;
-
+	static List<String> methodDeclarationForDetection=  new ArrayList<String>();
+	static List<String> methodDeclarationForNewActvityCall=  new ArrayList<String>();
 	/**
 	 * If PutExtra variable is found in a function, then find an assignment to
 	 * that variable which is a network call. Assumption is that PutExtra
@@ -52,7 +54,8 @@ public class TraceIntentCalls {
 	static Map<Integer, List<String>> candidateParametersMap = new HashMap<Integer, List<String>>();
 	static int intentResultIterator = -1;
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
+		
 		// TODO Auto-generated method stub
 		filename = "MainActivity";
 		srcDir = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/";
@@ -78,11 +81,21 @@ public class TraceIntentCalls {
 				KeyParameterPair currentPair = new KeyParameterPair(key, eachParameter, false);
 				a.visit(cu, currentPair);
 				if (currentPair.found)
+					{
 					System.out.println(networkresources.get(key));
-
+					
+					MethodFinder mf = new MethodFinder();
+					mf.visit(cu, networkresources.get(key));
+					}
 			}
 		}
 
+		
+		//Cancel connections
+		/*DetectConnections d = new DetectConnections();
+		d.executeDetections();*/
+		DetectConnections dr = new DetectConnections();
+		dr.readFile();
 	}
 
 	private static class IntentTracker extends VoidVisitorAdapter<Void> {
@@ -150,11 +163,11 @@ public class TraceIntentCalls {
 		@Override
 		public void visit(MethodDeclaration declarator, String content) {
 
-			if (declarator.getDeclarationAsString().contains("delegate3")) {
+			
 				boolean results[] = new boolean[2];
 				processMethod(declarator, results, content);
 
-			}
+			
 		}
 
 		public void processMethod(Node n, boolean[] results, String var) {
@@ -200,4 +213,19 @@ public class TraceIntentCalls {
 		}
 	}
 
+	private static class MethodFinder extends VoidVisitorAdapter<String> {
+		@Override
+		public void visit(MethodDeclaration declarator, String content) {
+			
+			//Find method that has the network response fetched
+			if (declarator.toString().contains(content) && !declarator.toString().contains(prefetchInitiator)
+					&& !declarator.toString().contains(prefetchReceiver)){
+				methodDeclarationForDetection.add(declarator.getDeclarationAsString());
+			}
+			//Find method that has intent to include AsyncTemplate Calls
+			if (declarator.toString().contains("new Intent(") && declarator.toString().contains(prefetchReceiver)){
+				methodDeclarationForNewActvityCall.add(declarator.getDeclarationAsString());
+			}
+		}
+	}
 }
