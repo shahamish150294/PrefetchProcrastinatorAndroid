@@ -2,14 +2,17 @@ package com.mcomputing.procrastinate;
 
 import android.util.Log;
 
+import java.io.Serializable;
+
 /**
  * Created by tau on 3/24/17.
  */
 
-public class ViewPrefetchCorrelation {
+
+public class ViewPrefetchCorrelation implements Serializable {
 
     public String viewName = "";
-    public int prefetchCount = 0, viewCount = 0;
+    public double prefetchCount = 0, viewCount = 0;
 
     public ViewPrefetchCorrelation(String name, int prefetchCount, int viewCount){
         this.prefetchCount = prefetchCount;
@@ -17,7 +20,7 @@ public class ViewPrefetchCorrelation {
         this.viewCount = viewCount;
     }
 
-    public int calculateCorrelation(){
+    public double calculateCorrelation(){
         try {
             return viewCount / prefetchCount;
         }

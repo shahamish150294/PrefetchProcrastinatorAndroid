@@ -1,5 +1,6 @@
 package com.example.tau.volleyprocrastrinate;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.mcomputing.procrastinate.PrefetchCorrelationMap;
+import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
+
 import org.json.JSONObject;
 
 
@@ -32,12 +35,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
-        asyncCallWeather.execute();
-
-        AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
-        asyncCallPrefetch.execute();
     }
 
     private void getWeatherData(){
@@ -119,13 +116,36 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
 
-        String activityName = DisplayDataActivity.class.getSimpleName();
-        PrefetchCorrelationMap.getInstance().incrementPrefetchCount(activityName);
-
         Intent intent = new Intent(this, DisplayDataActivity.class);
         intent.putExtra(EXTRA_MESSAGE, prefetchResult);
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+
+        // procrastination framework: flush the vpc data
+        Context context = this.getApplicationContext();
+        PrefetchCorrelationMap.getInstance(context).persistData();
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        // procrastination framework: increment the prefetch count
+        Context context = this.getApplicationContext();
+        String activityName = DisplayDataActivity.class.getSimpleName();
+        PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
+
+        AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
+        asyncCallWeather.execute();
+
+        AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+        asyncCallPrefetch.execute();
     }
 
     class AsyncCallWeather extends AsyncTask<String, Void, Boolean>{
