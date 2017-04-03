@@ -5,13 +5,18 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class DetectConnections {
 	boolean prefetchMethodFound;
 	boolean newActivityMethodFound;
+	int indexForMethodCall;
+	Stack<Character> bracketsStack; 
 	public DetectConnections() {
 		this.prefetchMethodFound = false;
 		this.newActivityMethodFound = false;
+		indexForMethodCall = 0;
+		bracketsStack = new Stack<Character>();
 	}
 	public void readFile() throws IOException{
 		String file = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate//MainActivity.java";
@@ -31,16 +36,28 @@ public class DetectConnections {
 			}
 			
 			if (newActivityMethodFound){
-				tempLine = makeSendMessage(line);
-				if (tempLine!=null){
-					writeLines.add(tempLine);
-					continue;
+				tempLine = modifySendMessage(line);
+				if (tempLine==""){
+					writeLines.add("");
+					
 				}
+				
+					if (!newActivityMethodFound && bracketsStack.isEmpty()){
+						String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall);
+						writeLines.add(methodDecl+("{\nTemplate t = new Template();\nt.execute(getApplicationContext());\n}"));
+						continue;
+					}
+				
 			}
 			else{
-				checkNewActvityCallMethod(line);
+				if (checkNewActvityCallMethod(line)){
+					writeLines.add("");
+				}
+				else{
+					writeLines.add(line);
+				}
 			}
-			writeLines.add(line);
+			
 		} 
 		
 		FileWriter writer = new FileWriter("MainActivity.java"); 
@@ -74,25 +91,42 @@ public class DetectConnections {
 		return null;
 	}
 
-	public  String makeSendMessage(String strExpr) {
+	public  String modifySendMessage(String strExpr) {
 		
-			if (strExpr.contains("new Intent(")){
-				strExpr +=("\nTemplate t = new Template();\nt.execute();\n");
+			/*if (strExpr.contains("new Intent(")){
+				String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall).replace("(", "3(");
+				strExpr +=("{\nTemplate t = new Template();\nt.execute();\n}");
 				newActivityMethodFound=false;
 				return strExpr;
 			}
-		
-		return null;
-	}
-	public void checkNewActvityCallMethod(String strExpr){
-		if (newActivityMethodFound)
-			return;
-		for (String element:TraceIntentCalls.methodDeclarationForNewActvityCall){
-			if (strExpr.contains(element)) {
-				newActivityMethodFound = true;
-				break;
-			}
+			*/
+		if (strExpr.contains("{")){
+			bracketsStack.push('}');
+		}
+		if (strExpr.contains("}")){
+			bracketsStack.pop();
 		}
 		
+		if (bracketsStack.isEmpty()){
+			newActivityMethodFound = false;
+			/**/
+		}
+		return "";
+	}
+	public Boolean checkNewActvityCallMethod(String strExpr){
+		if (newActivityMethodFound)
+			return false;
+		for (int i =0;i<TraceIntentCalls.methodDeclarationForNewActvityCall.size();i++){
+			if (strExpr.contains(TraceIntentCalls.methodDeclarationForNewActvityCall.get(i))) {
+				newActivityMethodFound = true;
+				indexForMethodCall = i;
+				if (strExpr.contains("{")){
+					bracketsStack.push('}');
+				}
+				return true;
+				
+			}
+		}
+		return false;
 	}
 }
