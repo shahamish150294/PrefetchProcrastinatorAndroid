@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateWeatherControls()  {
         try {
-
+ 
             Log.d("weather update: ", result + "****");
             JSONObject jObject = new JSONObject(result);
             JSONObject mainjObject = jObject.getJSONObject("main");
