@@ -11,14 +11,17 @@ import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.mcomputing.procrastinate.PrefetchCorrelationMap;
+import com.mcomputing.procrastinate.Procastinator;
 import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
 
 import org.json.JSONObject;
@@ -61,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
+
             InputStream in = new BufferedInputStream(conn.getInputStream());
             prefetchResult = convertStreamToString(in);
-
 
             Log.d(this.getClass().getSimpleName(),prefetchResult+"****");
         }catch (Exception e){
@@ -116,10 +119,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
 
-        Intent intent = new Intent(this, DisplayDataActivity.class);
-        intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+        if(Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false)) {
 
-        startActivity(intent);
+            Intent intent = new Intent(this, DisplayDataActivity.class);
+            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+
+            startActivity(intent);
+        }
+        else{
+            // write instrumented code.
+        }
     }
 
     @Override
@@ -136,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart(){
         super.onStart();
 
+
         // procrastination framework: increment the prefetch count
         Context context = this.getApplicationContext();
         String activityName = DisplayDataActivity.class.getSimpleName();
@@ -144,8 +154,13 @@ public class MainActivity extends AppCompatActivity {
         AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
         asyncCallWeather.execute();
 
-        AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
-        asyncCallPrefetch.execute();
+        if(Procastinator.getInstance(context).requiresProcrastination(true))
+        {
+            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+            asyncCallPrefetch.execute();
+        }
+
+
     }
 
     class AsyncCallWeather extends AsyncTask<String, Void, Boolean>{
