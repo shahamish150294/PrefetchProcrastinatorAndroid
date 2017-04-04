@@ -17,7 +17,7 @@ import static com.example.tau.volleyprocrastrinate.MainActivity.*;
 
 class Template extends AsyncTask<Void, Void, Boolean> {
     private Context context;
-
+    public String result;
     public Template(Context context) {
         this.context = context;
     }
@@ -27,14 +27,14 @@ class Template extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... args) {
         try {
 
-            String stringurl ="http://www.bing.com";
+            String stringurl ="http://api.openweathermap.org/v3/uvi/39,-86/current.json?appid=9ebbefc881d4c7bf3ecc57074775e3d2";
             URL url = new URL(stringurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             //HttpURLConnection conn = null;
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
-            //MainActivity.result = convertStreamToString(in);
-            //Log.d(this.getClass().getSimpleName(),result+"****");
+            result = convertStreamToString(in);
+            Log.d(this.getClass().getSimpleName(),result+"****");
         }catch (Exception e) {
         }
             return true;
@@ -68,9 +68,8 @@ class Template extends AsyncTask<Void, Void, Boolean> {
             Log.d(this.getClass().getSimpleName(),"Delegates done!");
             Intent intent = new Intent(context, DisplayDataActivity.class);
             intent.putExtra(EXTRA_MESSAGE, result);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Log.d(this.getClass().getSimpleName(),"Starting activity!"+result);
             context.startActivity(intent);
+
         }
     }
 }

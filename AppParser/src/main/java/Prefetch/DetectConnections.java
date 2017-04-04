@@ -1,101 +1,132 @@
 package Prefetch;
 
-import com.github.javaparser.ast.expr.*;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.ast.visitor.ModifierVisitor;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Stack;
 
 public class DetectConnections {
-	static String url;
-	public static void main(String[] args) throws FileNotFoundException {
-		FileInputStream in = new FileInputStream("C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/MainActivity.java");
-        // parse it
-        CompilationUnit cu = JavaParser.parse(in);
-
-        // visit and print the methods names
-        new MyVisitor().visit(cu, null);
-        //System.out.println(cu);
-        //Read template
-		FileInputStream in2 = new FileInputStream("C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/Template.java");
-        // parse it
-        CompilationUnit cu2 = JavaParser.parse(in2);
-        //Replace string url
-        new MyVisitor2().visit(cu2, null);
-        System.out.println(cu2);
+	boolean prefetchMethodFound;
+	boolean newActivityMethodFound;
+	int indexForMethodCall;
+	Stack<Character> bracketsStack; 
+	public DetectConnections() {
+		this.prefetchMethodFound = false;
+		this.newActivityMethodFound = false;
+		indexForMethodCall = 0;
+		bracketsStack = new Stack<Character>();
+	}
+	public void readFile() throws IOException{
+		String file = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate//MainActivity.java";
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		
+		String line = null;
+		String inputLine = null;
+		String tempLine = null;
+		ArrayList<String> writeLines = new ArrayList<String>(); 
+		while ((line = br.readLine()) != null)  
+		{  
+			inputLine = makeConnectionNull(line);
+			if (inputLine!=null)
+			{
+				writeLines.add(inputLine);
+				continue;
+			}
+			
+			if (newActivityMethodFound){
+				tempLine = modifySendMessage(line);
+				if (tempLine==""){
+					writeLines.add("");
+					
+				}
+				
+					if (!newActivityMethodFound && bracketsStack.isEmpty()){
+						String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall);
+						writeLines.add(methodDecl+("{\nTemplate t = new Template();\nt.execute(getApplicationContext());\n}"));
+						continue;
+					}
+				
+			}
+			else{
+				if (checkNewActvityCallMethod(line)){
+					writeLines.add("");
+				}
+				else{
+					writeLines.add(line);
+				}
+			}
+			
+		} 
+		
+		FileWriter writer = new FileWriter("MainActivity.java"); 
+		for(String str: writeLines) {
+		  writer.write(str+"\n");
+		}
+		writer.close();
+		br.close();
 	}
 
-	
-}
-class MyVisitor extends ModifierVisitor<Void> {
-    @Override
-    
-    public Node visit(VariableDeclarator declarator, Void args) {
-    	
-                // the initializer is optional, first check if there is one
-                if( declarator.getInitializer().isPresent()) {
-            Expression expression = declarator.getInitializer().get();
-            if (expression.toString().contains("HttpURLConnection") && 
-            		expression.toString().contains("openConnection()")) {
-          
-            	return null;
-            }
-                }
-        
-    	
-        	if( declarator.getInitializer().isPresent()) {
-        		Expression expression = declarator.getInitializer().get();
-        		if (expression.toString().contains("AsyncCalls()")) {
-        			
-        			return null;
-        		}
-        		}
-        	
 
-        	if( declarator.getInitializer().isPresent()) {
-        		Expression expression = declarator.getInitializer().get();
-        		if (expression.toString().contains("new URL")) {
-        			Pattern p = Pattern.compile(".*\\\"(.*)\\\".*");
-        			Matcher m = p.matcher(expression.toString());
-        			if(m.find()) {
-        				DetectConnections.url = (m.group(1));
-        	        }
-        			
-        			return null;
-        		}
-        		}
-        	
-        
-        
-        return declarator;
-    }
-}
-class MyVisitor2 extends ModifierVisitor<Void> {
-    @Override
-    public Node visit(VariableDeclarator declarator, Void args) {
-        if (declarator.getNameAsString().equals("stringurl")
-                // the initializer is optional, first check if there is one
-                && declarator.getInitializer().isPresent()) {
-            Expression expression = declarator.getInitializer().get();
-            // We're looking for a literal integer.
-            if (expression instanceof StringLiteralExpr) {                //
-                if (((StringLiteralExpr) expression).getValue().equals("http://www.bing.com")) {
-                    // Returning null means "remove this VariableDeclarator"
-                     ((StringLiteralExpr) expression).setValue(DetectConnections.url);
-                     return declarator;
-                }
-            }
-        }
-        return declarator;
-    }
+	public  String makeConnectionNull(String strExpr) {
+		
+		for (String element:TraceIntentCalls.methodDeclarationForDetection){
+			if (strExpr.contains(element)) {
+				prefetchMethodFound = true;
+				break;
+			}
+		}
+		if( prefetchMethodFound){
+			if (strExpr.contains("url.openConnection();")){
+				// find index of =
+				int indexEq = strExpr.indexOf("=");
+				// find index of ;
+				int indexSemiColon = strExpr.indexOf(";");
+				// replace the text between above indices with ""
+				String toBeReplaced = strExpr.substring(indexEq + 1, indexSemiColon);
+				return strExpr.replace(toBeReplaced, "null");
+			}
+		}
+		return null;
+	}
+
+	public  String modifySendMessage(String strExpr) {
+		
+			/*if (strExpr.contains("new Intent(")){
+				String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall).replace("(", "3(");
+				strExpr +=("{\nTemplate t = new Template();\nt.execute();\n}");
+				newActivityMethodFound=false;
+				return strExpr;
+			}
+			*/
+		if (strExpr.contains("{")){
+			bracketsStack.push('}');
+		}
+		if (strExpr.contains("}")){
+			bracketsStack.pop();
+		}
+		
+		if (bracketsStack.isEmpty()){
+			newActivityMethodFound = false;
+			/**/
+		}
+		return "";
+	}
+	public Boolean checkNewActvityCallMethod(String strExpr){
+		if (newActivityMethodFound)
+			return false;
+		for (int i =0;i<TraceIntentCalls.methodDeclarationForNewActvityCall.size();i++){
+			if (strExpr.contains(TraceIntentCalls.methodDeclarationForNewActvityCall.get(i))) {
+				newActivityMethodFound = true;
+				indexForMethodCall = i;
+				if (strExpr.contains("{")){
+					bracketsStack.push('}');
+				}
+				return true;
+				
+			}
+		}
+		return false;
+	}
 }
