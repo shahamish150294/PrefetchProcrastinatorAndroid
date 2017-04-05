@@ -48,6 +48,21 @@ public class PrefetchCorrelationMap {
         }
     }
 
+    public String getVpcInText()
+    {
+        StringBuilder sb = new StringBuilder();
+        int count  = 1;
+        for(Map.Entry<String, ViewPrefetchCorrelation> entry: this.correlationMap.entrySet()){
+
+            String className = entry.getKey();
+            ViewPrefetchCorrelation vp = entry.getValue();
+            sb.append(count +" : " + vp.viewName + " View Count: " + vp.viewCount + " Prefetch Count: " + vp.prefetchCount + "VPC: " + vp.calculateCorrelation() + "\n\n");
+            count++;
+        }
+
+        return sb.toString();
+    }
+
     public void persistData(){
 
         try {

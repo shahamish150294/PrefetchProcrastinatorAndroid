@@ -1,13 +1,16 @@
 package com.example.tau.volleyprocrastrinate;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -20,6 +23,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.mcomputing.procrastinate.NetworkMeter;
 import com.mcomputing.procrastinate.PrefetchCorrelationMap;
 import com.mcomputing.procrastinate.Procastinator;
 import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
@@ -76,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateWeatherControls()  {
         try {
- 
+
             Log.d("weather update: ", result + "****");
             JSONObject jObject = new JSONObject(result);
             JSONObject mainjObject = jObject.getJSONObject("main");
@@ -139,12 +143,13 @@ public class MainActivity extends AppCompatActivity {
         Context context = this.getApplicationContext();
         PrefetchCorrelationMap.getInstance(context).persistData();
 
+        // procrastination framework: update the network stats and save the data
+        NetworkMeter.getInstance(context).updateDailyStatsAndSave();
     }
 
     @Override
     public void onStart(){
         super.onStart();
-
 
         // procrastination framework: increment the prefetch count
         Context context = this.getApplicationContext();
@@ -159,8 +164,47 @@ public class MainActivity extends AppCompatActivity {
             AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
             asyncCallPrefetch.execute();
         }
+    }
 
+    // Display the network data until now
+    public void displayStats(View view)
+    {
+        Context context = this.getApplicationContext();
+        String stats = NetworkMeter.getInstance(context).getStatsInText();
+        Log.d("Main", stats);
 
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Network Statistics")
+                .setMessage(stats)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Close
+                    }
+                }).show();
+
+    }
+
+    // Display the VPC info until now
+    public void displayVpcInfo(View view)
+    {
+        Context context = this.getApplicationContext();
+        String vpcStats = PrefetchCorrelationMap.getInstance(context).getVpcInText();
+        Log.d("Main", vpcStats);
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("VPC Statistics")
+                .setMessage(vpcStats)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Close
+                    }
+                }).show();
+
+     //   Toast.makeText(context, vpcStats, Toast.LENGTH_LONG).show();
     }
 
     class AsyncCallWeather extends AsyncTask<String, Void, Boolean>{

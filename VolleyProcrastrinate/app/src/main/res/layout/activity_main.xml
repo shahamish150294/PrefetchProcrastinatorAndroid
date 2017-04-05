@@ -66,5 +66,31 @@
         android:layout_marginEnd="4dp"
         tools:layout_constraintLeft_creator="1" />
 
+    <Button
+        android:id="@+id/btnTraffic"
+        android:layout_width="88dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="461dp"
+        android:onClick="displayStats"
+        android:text="Stats"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="9dp"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toRightOf="@+id/btnVpc" />
+
+    <Button
+        android:id="@+id/btnVpc"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="88dp"
+        android:layout_height="48dp"
+        android:onClick="displayVpcInfo"
+        android:text="VPC"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="89dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="2dp" />
+
 
 </android.support.constraint.ConstraintLayout>

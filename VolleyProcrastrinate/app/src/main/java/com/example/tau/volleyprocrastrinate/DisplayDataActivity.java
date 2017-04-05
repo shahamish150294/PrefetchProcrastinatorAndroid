@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.mcomputing.procrastinate.NetworkMeter;
 import com.mcomputing.procrastinate.PrefetchCorrelationMap;
 
 import org.json.JSONException;
@@ -60,6 +61,9 @@ public class DisplayDataActivity extends AppCompatActivity {
         // procrastination framework: flush the vpc data
         Context context = this.getApplicationContext();
         PrefetchCorrelationMap.getInstance(context).persistData();
+
+        // procrastination framework: update the network stats and save the data
+        NetworkMeter.getInstance(context).updateDailyStatsAndSave();
     }
 
     @Override
