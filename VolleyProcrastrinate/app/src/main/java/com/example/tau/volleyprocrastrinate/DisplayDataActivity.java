@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.mcomputing.procrastinate.NetworkMeter;
-import com.mcomputing.procrastinate.PrefetchCorrelationMap;
+import com.mcomputing.Measurements.NetworkMeter;
+import com.mcomputing.Measurements.PrefetchCorrelationMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
