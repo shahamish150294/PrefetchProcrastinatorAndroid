@@ -10,28 +10,23 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.mcomputing.procrastinate.NetworkMeter;
-import com.mcomputing.procrastinate.PrefetchCorrelationMap;
-import com.mcomputing.procrastinate.Procastinator;
-import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
+import com.mcomputing.Measurements.NetworkMeter;
+import com.mcomputing.Measurements.PrefetchCorrelationMap;
 
 import org.json.JSONObject;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity {
 
 
     public static final String EXTRA_MESSAGE = "volley.MESSAGE";
@@ -123,35 +118,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
 
-        if(Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false)) {
+        Intent intent = new Intent(this, DisplayDataActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, prefetchResult);
 
-            Intent intent = new Intent(this, DisplayDataActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+        startActivity(intent);
 
-            startActivity(intent);
-        }
-        else{
-            // write instrumented code.
-
-            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
-            asyncCallPrefetch.execute();
-
-            Intent intent = new Intent(this, DisplayDataActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
-
-            startActivity(intent);
-        }
     }
 
     @Override
     public void onStop(){
         super.onStop();
 
-        // procrastination framework: flush the vpc data
+        // Measurements framework: flush the vpc data
         Context context = this.getApplicationContext();
         PrefetchCorrelationMap.getInstance(context).persistData();
 
-        // procrastination framework: update the network stats and save the data
+        // Measurements framework: update the network stats and save the data
         NetworkMeter.getInstance(context).updateDailyStatsAndSave();
     }
 
@@ -159,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart(){
         super.onStart();
 
-        // procrastination framework: increment the prefetch count
+        // Measurements framework: increment the prefetch count
         Context context = this.getApplicationContext();
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
@@ -167,11 +149,9 @@ public class MainActivity extends AppCompatActivity {
         AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
         asyncCallWeather.execute();
 
-        if(!Procastinator.getInstance(context).requiresProcrastination(true))
-        {
-            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
-            asyncCallPrefetch.execute();
-        }
+        AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+        asyncCallPrefetch.execute();
+
     }
 
     // Display the network data until now
@@ -181,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         String stats = NetworkMeter.getInstance(context).getStatsInText();
         Log.d("Main", stats);
 
-        new AlertDialog.Builder(MainActivity.this)
+        new AlertDialog.Builder(MainActivity2.this)
                 .setTitle("Network Statistics")
                 .setMessage(stats)
                 .setCancelable(false)
@@ -201,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         String vpcStats = PrefetchCorrelationMap.getInstance(context).getVpcInText();
         Log.d("Main", vpcStats);
 
-        new AlertDialog.Builder(MainActivity.this)
+        new AlertDialog.Builder(MainActivity2.this)
                 .setTitle("VPC Statistics")
                 .setMessage(vpcStats)
                 .setCancelable(false)

@@ -12,8 +12,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.example.tau.volleyprocrastrinate.MainActivity.*;
-
 
 class Template extends AsyncTask<Void, Void, Boolean> {
     private Context context;

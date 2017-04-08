@@ -10,18 +10,24 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+
 import com.mcomputing.Measurements.NetworkMeter;
 import com.mcomputing.Measurements.PrefetchCorrelationMap;
+import com.mcomputing.procrastinate.Procastinator;
+
 
 import org.json.JSONObject;
 
@@ -118,22 +124,34 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendMessage(View view) {
 
-        Intent intent = new Intent(this, DisplayDataActivity.class);
-        intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+        if(!Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false)) {
 
-        startActivity(intent);
+            Intent intent = new Intent(this, DisplayDataActivity.class);
+            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
 
+            startActivity(intent);
+        }
+        else{
+            // requires procrastination, begin async call.
+            // write instrumented code.
+            Log.d("procrastination logic", "requires procrastination");
+
+            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+            asyncCallPrefetch.execute();
+
+
+        }
     }
 
     @Override
     public void onStop(){
         super.onStop();
 
-        // Measurements framework: flush the vpc data
+        // procrastination framework: flush the vpc data
         Context context = this.getApplicationContext();
         PrefetchCorrelationMap.getInstance(context).persistData();
 
-        // Measurements framework: update the network stats and save the data
+        // procrastination framework: update the network stats and save the data
         NetworkMeter.getInstance(context).updateDailyStatsAndSave();
     }
 
@@ -141,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart(){
         super.onStart();
 
-        // Measurements framework: increment the prefetch count
+        // procrastination framework: increment the prefetch count
         Context context = this.getApplicationContext();
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
@@ -149,9 +167,15 @@ public class MainActivity extends AppCompatActivity {
         AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
         asyncCallWeather.execute();
 
-        AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
-        asyncCallPrefetch.execute();
-
+        if(!Procastinator.getInstance(context).requiresProcrastination(true))
+        {
+            Log.d("procrastination logic", "onstart does not require procrastination, go in");
+            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+            asyncCallPrefetch.execute();
+        }
+        else{
+            Log.d("procrastination logic", "onstart procrastination begins");
+        }
     }
 
     // Display the network data until now
@@ -220,6 +244,15 @@ public class MainActivity extends AppCompatActivity {
 
             getPrefetchData();
             return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+            Intent intent = new Intent(MainActivity.this, DisplayDataActivity.class);
+            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+
+            startActivity(intent);
         }
     }
 }
