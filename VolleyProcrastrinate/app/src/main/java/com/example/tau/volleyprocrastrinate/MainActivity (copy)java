@@ -23,10 +23,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.mcomputing.procrastinate.NetworkMeter;
-import com.mcomputing.procrastinate.PrefetchCorrelationMap;
+import com.mcomputing.Measurements.NetworkMeter;
+import com.mcomputing.Measurements.PrefetchCorrelationMap;
 import com.mcomputing.procrastinate.Procastinator;
-import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
+import com.mcomputing.Measurements.ViewPrefetchCorrelation;
 
 import org.json.JSONObject;
 

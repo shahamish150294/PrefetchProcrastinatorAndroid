@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.mcomputing.Measurements.NetworkMeter;
+import com.mcomputing.Measurements.PrefetchCorrelationMap;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,8 +23,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.mcomputing.Measurements.NetworkMeter;
-import com.mcomputing.Measurements.PrefetchCorrelationMap;
+
+
 
 import org.json.JSONObject;
 

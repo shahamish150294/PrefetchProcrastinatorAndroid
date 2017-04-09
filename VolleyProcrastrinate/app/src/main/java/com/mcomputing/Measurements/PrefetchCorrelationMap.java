@@ -1,4 +1,4 @@
-package com.mcomputing.procrastinate;
+package com.mcomputing.Measurements;
 
 import android.content.Context;
 import android.util.Log;
