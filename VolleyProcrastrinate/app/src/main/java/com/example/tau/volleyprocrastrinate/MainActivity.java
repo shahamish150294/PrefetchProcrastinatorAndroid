@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             // write instrumented code.
             Log.d("procrastination logic", "requires procrastination");
 
-            AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
+            AsyncCallPrefetchP asyncCallPrefetch = new AsyncCallPrefetchP();
             asyncCallPrefetch.execute();
 
 
@@ -164,12 +164,14 @@ public class MainActivity extends AppCompatActivity {
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
 
+        Log.d("onstart", "weather calls");
         AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
         asyncCallWeather.execute();
 
         if(!Procastinator.getInstance(context).requiresProcrastination(true))
         {
             Log.d("procrastination logic", "onstart does not require procrastination, go in");
+
             AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
             asyncCallPrefetch.execute();
         }
@@ -249,10 +251,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
 
-            Intent intent = new Intent(MainActivity.this, DisplayDataActivity.class);
-            intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+           Log.d("prefetch","Not procrastinated");
+        }
+    }
 
-            startActivity(intent);
+    class AsyncCallPrefetchP extends AsyncTask<String, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(String... urls) {
+
+            getPrefetchData();
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+            try {
+                Intent intent = new Intent(MainActivity.this, DisplayDataActivity.class);
+                intent.putExtra(EXTRA_MESSAGE, prefetchResult);
+
+                startActivity(intent);
+            }
+            catch(Exception ex)
+            {
+                Log.e("intent", ex.getMessage());
+            }
         }
     }
 }
