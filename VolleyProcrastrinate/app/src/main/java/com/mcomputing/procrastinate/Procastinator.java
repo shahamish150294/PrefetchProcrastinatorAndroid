@@ -2,6 +2,7 @@ package com.mcomputing.procrastinate;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 /**
  * Created by tau on 4/3/17.
@@ -32,8 +33,10 @@ public class Procastinator {
             final ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             final android.net.NetworkInfo acheiveNetworkInfo = connMgr.getActiveNetworkInfo();
 
+
             if (acheiveNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI){
-                requiresProcrastination = false;
+                    requiresProcrastination = false;
+
             }else if (acheiveNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE){
                 requiresProcrastination = true;
             }
