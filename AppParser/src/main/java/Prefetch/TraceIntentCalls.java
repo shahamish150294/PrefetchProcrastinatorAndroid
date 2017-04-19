@@ -60,9 +60,9 @@ public class TraceIntentCalls {
 	public static void main(String[] args) throws IOException {
 		
 		// TODO Auto-generated method stub
-		filename = "MainActivity";
-		templateFilename = "Template";
-		srcDir = "C:/Users/shaha/workspace/AppParser/";
+		filename = args[1];
+		templateFilename = args[2];
+		srcDir = args[0];
 		FileInputStream in = new FileInputStream(srcDir + filename + ".java");
 		// parse it
 		CompilationUnit cu = JavaParser.parse(in);
