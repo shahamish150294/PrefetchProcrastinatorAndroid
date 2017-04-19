@@ -56,13 +56,14 @@ public class TraceIntentCalls {
 	
 	static String prefetchURL;
 	static String templateFilename;
-
+	static String prefetchBgCallVariable;
+	static String prefetchBgCallClass= "new AsyncCallPrefetch(";
 	public static void main(String[] args) throws IOException {
 		
 		// TODO Auto-generated method stub
-		filename = args[1];
-		templateFilename = args[2];
-		srcDir = args[0];
+		filename = args[1];//"MainActivity";
+		templateFilename = args[2];//"Template";
+		srcDir = args[0];//"C:/Users/shaha/Desktop/";
 		FileInputStream in = new FileInputStream(srcDir + filename + ".java");
 		// parse it
 		CompilationUnit cu = JavaParser.parse(in);
@@ -94,12 +95,16 @@ public class TraceIntentCalls {
 			}
 		}
 
+		//Detect the prefetch bg variable name
+		new PrefetchVariableFinder().visit(cu,prefetchBgCallClass); 
 		
 		//Cancel connections
 		/*DetectConnections d = new DetectConnections();
 		d.executeDetections();*/
 		DetectConnections dr = new DetectConnections();
 		dr.readFile();
+		
+		
 		
 		//Inject Template
 		TemplateInjection t = new TemplateInjection();
@@ -235,5 +240,18 @@ public class TraceIntentCalls {
 				methodDeclarationForNewActvityCall.add(declarator.getDeclarationAsString());
 			}
 		}
+	}
+	
+	private static class PrefetchVariableFinder extends ModifierVisitor<String> {
+	    @Override
+	    public Node visit(VariableDeclarator declarator, String AsnycClassName) {
+	        if (declarator.getInitializer().isPresent()) {
+	            Expression expression = declarator.getInitializer().get();
+	            if (expression.toString().contains(AsnycClassName)) {
+	                prefetchBgCallVariable = declarator.getNameAsString();
+	            }
+	        }
+	        return declarator;
+	    }
 	}
 }

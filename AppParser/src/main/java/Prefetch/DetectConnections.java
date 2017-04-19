@@ -44,7 +44,7 @@ public class DetectConnections {
 				
 					if (!newActivityMethodFound && bracketsStack.isEmpty()){
 						String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall);
-						writeLines.add(methodDecl+("{\nif(!Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false))\n{Intent intent = new Intent(this, "+TraceIntentCalls.prefetchReceiver+".class);\nintent.putExtra(EXTRA_MESSAGE, "+TraceIntentCalls.networkresources.get(0)+");\nstartActivity(intent);\n}\nelse\n{\nTemplate t = new Template(getApplicationContext());\nt.execute();\n}}"));
+						writeLines.add(methodDecl+("{\nif(!Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false))\n{Intent intent = new Intent(this, "+TraceIntentCalls.prefetchReceiver+".class);\nintent.putExtra(EXTRA_MESSAGE, "+TraceIntentCalls.networkresources.get(0)+");\nstartActivity(intent);\n}\nelse\n{\nLog.d(this.getClass().getSimpleName(), \"Now, fetching next activity data\");\nTemplate t = new Template(getApplicationContext());\nt.execute();\n}}"));
 						continue;
 					}
 				
@@ -66,7 +66,15 @@ public class DetectConnections {
 				String packageSt = writeLines.get(i);
 				packageSt+=" import com.mcomputing.procrastinate.Procastinator;";
 				writeLines.set(i, packageSt);
-				break;
+			}
+			else if (writeLines.get(i).contains(TraceIntentCalls.prefetchBgCallClass)&&writeLines.get(i).contains(TraceIntentCalls.prefetchBgCallVariable)){
+				String instantiation = writeLines.get(i);
+				instantiation = "";
+				instantiation = "if(!Procastinator.getInstance(context).requiresProcrastination(true))\n{\nLog.d(this.getClass().getSimpleName(), \"Fetching next activity data!\");\nAsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();\nasyncCallPrefetch.execute();\n}\nelse{\nLog.d(this.getClass().getSimpleName(), \"Procrastinated Prefetch Call\");\n}";
+				writeLines.set(i, instantiation);
+			}
+			else if (writeLines.get(i).contains(TraceIntentCalls.prefetchBgCallVariable) && writeLines.get(i).contains("execute(")){
+				writeLines.remove(i);
 			}
 		}
 		

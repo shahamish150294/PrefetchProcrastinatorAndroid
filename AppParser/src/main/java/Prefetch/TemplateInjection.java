@@ -25,9 +25,7 @@ public class TemplateInjection {
 			else if (line.contains("id12345")){
 				line = "Intent intent = new Intent(context, "+TraceIntentCalls.prefetchReceiver+".class);";
 			}
-			else if (line.contains("putExtra(")){
-				line = "intent.putExtra(EXTRA_MESSAGE, "+TraceIntentCalls.networkresources.get(0)+");";
-			}
+			
 			writeLines.add(line);
 		}
 		FileWriter writer = new FileWriter("Template2.java"); 

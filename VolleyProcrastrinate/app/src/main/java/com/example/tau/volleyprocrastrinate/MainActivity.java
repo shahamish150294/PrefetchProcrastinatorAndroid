@@ -146,10 +146,10 @@ public class MainActivity extends AppCompatActivity {
         Context context = this.getApplicationContext();
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
-
+        Log.d(this.getClass().getSimpleName(), "Fetching weather data!");
         AsyncCallWeather asyncCallWeather = new AsyncCallWeather();
         asyncCallWeather.execute();
-
+        Log.d(this.getClass().getSimpleName(), "Fetching next activity data!");
         AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
         asyncCallPrefetch.execute();
 
