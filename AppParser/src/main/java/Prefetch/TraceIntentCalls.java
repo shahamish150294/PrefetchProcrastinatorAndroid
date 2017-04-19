@@ -53,11 +53,15 @@ public class TraceIntentCalls {
 	 */
 	static Map<Integer, List<String>> candidateParametersMap = new HashMap<Integer, List<String>>();
 	static int intentResultIterator = -1;
+	
+	static String prefetchURL;
+	static String templateFilename;
 
 	public static void main(String[] args) throws IOException {
 		
 		// TODO Auto-generated method stub
 		filename = "MainActivity";
+		templateFilename = "Template";
 		srcDir = "C:/Users/shaha/workspace/AppParser/";
 		FileInputStream in = new FileInputStream(srcDir + filename + ".java");
 		// parse it
@@ -96,6 +100,10 @@ public class TraceIntentCalls {
 		d.executeDetections();*/
 		DetectConnections dr = new DetectConnections();
 		dr.readFile();
+		
+		//Inject Template
+		TemplateInjection t = new TemplateInjection();
+		t.Injection(srcDir, templateFilename);
 	}
 
 	private static class IntentTracker extends VoidVisitorAdapter<Void> {

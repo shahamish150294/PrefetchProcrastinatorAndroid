@@ -88,6 +88,7 @@ public class DetectConnections {
 			}
 		}
 		if( prefetchMethodFound){
+			//Following code makes the connection of prefetch to null. Since we dont want this after design changes. Code commented
 			/*if (strExpr.contains("url.openConnection();")){
 				// find index of =
 				int indexEq = strExpr.indexOf("=");
@@ -97,6 +98,19 @@ public class DetectConnections {
 				String toBeReplaced = strExpr.substring(indexEq + 1, indexSemiColon);
 				return strExpr.replace(toBeReplaced, "null");
 			}*/
+			//Fetch the prefetch URL. By making use of the prefetchMethodFound variable
+			if (strExpr.contains("URL(")){
+				// find index of =
+				int indexEq = strExpr.indexOf("(");
+				// find index of ;
+				int indexSemiColon = strExpr.indexOf(")");
+				// replace the text between above indices with ""
+				//String toBeReplaced = strExpr.substring(indexEq + 1, indexSemiColon);
+				TraceIntentCalls.prefetchURL = strExpr.substring(indexEq+1, indexSemiColon);
+				System.out.println(TraceIntentCalls.prefetchURL);
+				//return strExpr.replace(toBeReplaced, "null");
+			}
+			
 		}
 		return null;
 	}
