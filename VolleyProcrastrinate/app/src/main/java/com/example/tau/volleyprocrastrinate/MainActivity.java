@@ -45,14 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private void getWeatherData(){
 
         try {
-
             URL url = new URL("http://api.openweathermap.org/data/2.5/weather?zip=47408,US&appid=9ebbefc881d4c7bf3ecc57074775e3d2");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             Log.d(this.getClass().getSimpleName(),result+"****");
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
             result = convertStreamToString(in);
-
         }catch (Exception e){
 
             Log.e(this.getClass().getSimpleName(),e.getMessage()+"****");

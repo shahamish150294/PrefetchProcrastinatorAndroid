@@ -58,7 +58,7 @@ public class TraceIntentCalls {
 		
 		// TODO Auto-generated method stub
 		filename = "MainActivity";
-		srcDir = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate/";
+		srcDir = "C:/Users/shaha/workspace/AppParser/";
 		FileInputStream in = new FileInputStream(srcDir + filename + ".java");
 		// parse it
 		CompilationUnit cu = JavaParser.parse(in);

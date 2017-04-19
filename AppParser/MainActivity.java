@@ -1,13 +1,18 @@
 package com.example.tau.volleyprocrastrinate;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.mcomputing.Measurements.NetworkMeter;
+import com.mcomputing.Measurements.PrefetchCorrelationMap;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -18,8 +23,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.mcomputing.procrastinate.PrefetchCorrelationMap;
-import com.mcomputing.procrastinate.ViewPrefetchCorrelation;
+
+
 
 import org.json.JSONObject;
 
@@ -40,14 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private void getWeatherData(){
 
         try {
-
             URL url = new URL("http://api.openweathermap.org/data/2.5/weather?zip=47408,US&appid=9ebbefc881d4c7bf3ecc57074775e3d2");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             Log.d(this.getClass().getSimpleName(),result+"****");
             conn.setRequestMethod("GET");
             InputStream in = new BufferedInputStream(conn.getInputStream());
             result = convertStreamToString(in);
-
         }catch (Exception e){
 
             Log.e(this.getClass().getSimpleName(),e.getMessage()+"****");
@@ -58,12 +61,12 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             URL url = new URL("http://api.openweathermap.org/v3/uvi/39,-86/current.json?appid=9ebbefc881d4c7bf3ecc57074775e3d2");
-            HttpURLConnection conn =null;
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("GET");
+
             InputStream in = new BufferedInputStream(conn.getInputStream());
             prefetchResult = convertStreamToString(in);
-
 
             Log.d(this.getClass().getSimpleName(),prefetchResult+"****");
         }catch (Exception e){
@@ -114,33 +117,32 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    public void sendMessage(View view) {
 
+        Intent intent = new Intent(this, DisplayDataActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, prefetchResult);
 
+        startActivity(intent);
 
-
-
-
-
-public void sendMessage(View view){
-Template t = new Template();
-t.execute();
-}
+    }
 
     @Override
     public void onStop(){
         super.onStop();
 
-        // procrastination framework: flush the vpc data
+        // Measurements framework: flush the vpc data
         Context context = this.getApplicationContext();
         PrefetchCorrelationMap.getInstance(context).persistData();
 
+        // Measurements framework: update the network stats and save the data
+        NetworkMeter.getInstance(context).updateDailyStatsAndSave();
     }
 
     @Override
     public void onStart(){
         super.onStart();
 
-        // procrastination framework: increment the prefetch count
+        // Measurements framework: increment the prefetch count
         Context context = this.getApplicationContext();
         String activityName = DisplayDataActivity.class.getSimpleName();
         PrefetchCorrelationMap.getInstance(context).incrementPrefetchCount(activityName);
@@ -150,6 +152,48 @@ t.execute();
 
         AsyncCallPrefetch asyncCallPrefetch = new AsyncCallPrefetch();
         asyncCallPrefetch.execute();
+
+    }
+
+    // Display the network data until now
+    public void displayStats(View view)
+    {
+        Context context = this.getApplicationContext();
+        String stats = NetworkMeter.getInstance(context).getStatsInText();
+        Log.d("Main", stats);
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Network Statistics")
+                .setMessage(stats)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Close
+                    }
+                }).show();
+
+    }
+
+    // Display the VPC info until now
+    public void displayVpcInfo(View view)
+    {
+        Context context = this.getApplicationContext();
+        String vpcStats = PrefetchCorrelationMap.getInstance(context).getVpcInText();
+        Log.d("Main", vpcStats);
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("VPC Statistics")
+                .setMessage(vpcStats)
+                .setCancelable(false)
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Close
+                    }
+                }).show();
+
+     //   Toast.makeText(context, vpcStats, Toast.LENGTH_LONG).show();
     }
 
     class AsyncCallWeather extends AsyncTask<String, Void, Boolean>{

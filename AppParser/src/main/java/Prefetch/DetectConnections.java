@@ -19,7 +19,7 @@ public class DetectConnections {
 		bracketsStack = new Stack<Character>();
 	}
 	public void readFile() throws IOException{
-		String file = "C:/Users/shaha/Documents/PrefetchProcrastinatorAndroid/VolleyProcrastrinate/app/src/main/java/com/example/tau/volleyprocrastrinate//MainActivity.java";
+		String file = TraceIntentCalls.srcDir+TraceIntentCalls.filename+".java";
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		
 		String line = null;
@@ -44,7 +44,7 @@ public class DetectConnections {
 				
 					if (!newActivityMethodFound && bracketsStack.isEmpty()){
 						String methodDecl = TraceIntentCalls.methodDeclarationForNewActvityCall.get(indexForMethodCall);
-						writeLines.add(methodDecl+("{\nTemplate t = new Template();\nt.execute(getApplicationContext());\n}"));
+						writeLines.add(methodDecl+("{\nif(!Procastinator.getInstance( this.getApplicationContext()).requiresProcrastination(false))\n{Intent intent = new Intent(this, "+TraceIntentCalls.prefetchReceiver+".class);\nintent.putExtra(EXTRA_MESSAGE, "+TraceIntentCalls.networkresources.get(0)+");\nstartActivity(intent);\n}\nelse\n{\nTemplate t = new Template(getApplicationContext());\nt.execute();\n}}"));
 						continue;
 					}
 				
@@ -59,10 +59,20 @@ public class DetectConnections {
 			}
 			
 		} 
+		//Add import statements - import com.mcomputing.procrastinate.Procastinator;		
+		for (int i=0;i<writeLines.size();i++){
+			if (writeLines.get(i).contains("package"))
+			{
+				String packageSt = writeLines.get(i);
+				packageSt+=" import com.mcomputing.procrastinate.Procastinator;";
+				writeLines.set(i, packageSt);
+				break;
+			}
+		}
 		
-		FileWriter writer = new FileWriter("MainActivity.java"); 
+		FileWriter writer = new FileWriter("MainActivity2.java"); 
 		for(String str: writeLines) {
-		  writer.write(str+"\n");
+			writer.write(str+"\n");
 		}
 		writer.close();
 		br.close();
@@ -78,7 +88,7 @@ public class DetectConnections {
 			}
 		}
 		if( prefetchMethodFound){
-			if (strExpr.contains("url.openConnection();")){
+			/*if (strExpr.contains("url.openConnection();")){
 				// find index of =
 				int indexEq = strExpr.indexOf("=");
 				// find index of ;
@@ -86,7 +96,7 @@ public class DetectConnections {
 				// replace the text between above indices with ""
 				String toBeReplaced = strExpr.substring(indexEq + 1, indexSemiColon);
 				return strExpr.replace(toBeReplaced, "null");
-			}
+			}*/
 		}
 		return null;
 	}
